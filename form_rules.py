@@ -1,68 +1,54 @@
-# Each exercise has a dict of angle rules
-# Format: 'angle_name': (min, max, error_message)
-# If angle is OUTSIDE (min, max) → flag as error
+# Rule format: 'angle_name': ('check_type', target_value, error_message)
+# 'max' = the joint must reach AT LEAST this angle (extension)
+# 'min' = the joint must bend to AT MOST this angle (flexion)
 
 EXERCISE_RULES = {
-    
-    'Lunges': {
-        'front_knee':  (80, 100, "Front knee should be ~90° — don't let it cave inward"),
-        'back_knee':   (80, 100, "Back knee too straight or over-bent"),
-        'torso_lean':  (75, 105, "Keep torso upright — don't lean too far forward"),
+    'CleanAndJerk': {
+        'left_elbow':  ('max', 150, "Arms must fully lock out overhead during the jerk"),
+        'right_elbow': ('max', 150, "Arms must fully lock out overhead during the jerk"),
+        'left_knee':   ('min', 110, "Did not squat deep enough during the clean catch"),
+        'right_knee':  ('min', 110, "Did not squat deep enough during the clean catch"),
     },
-    
+    'PushUps': {
+        'left_elbow':  ('min', 90, "Go lower! Elbows must bend to at least 90 degrees"),
+        'right_elbow': ('min', 90, "Go lower! Elbows must bend to at least 90 degrees"),
+    },
     'WallPushups': {
-        'left_elbow':  (80, 110, "Elbow angle off — keep arms at 90° at bottom"),
-        'right_elbow': (80, 110, "Elbow angle off — keep arms at 90° at bottom"),
-        'left_shoulder': (70, 110, "Shoulder position incorrect"),
-        'right_shoulder': (70, 110, "Shoulder position incorrect"),
+        'left_elbow':  ('min', 100, "Bend elbows more to bring chest closer to the wall"),
+        'right_elbow': ('min', 100, "Bend elbows more to bring chest closer to the wall"),
     },
-    
-    'PullUps': {
-        'left_elbow':  (140, 180, "Arms not fully extended at bottom"),
-        'right_elbow': (140, 180, "Arms not fully extended at bottom"),
-        'left_shoulder': (150, 180, "Shoulder engagement off"),
-        'right_shoulder': (150, 180, "Shoulder engagement off"),
-    },
-    
-    'JumpingJack': {
-        'left_shoulder':  (60, 180, "Arms not raising fully"),
-        'right_shoulder': (60, 180, "Arms not raising fully"),
-        'left_hip':       (20, 60,  "Legs not spreading wide enough"),
-        'right_hip':      (20, 60,  "Legs not spreading wide enough"),
-    },
-    
     'HandstandPushups': {
-        'left_elbow':  (80, 110, "Elbow angle off for handstand pushup"),
-        'right_elbow': (80, 110, "Elbow angle off for handstand pushup"),
+        'left_elbow':  ('min', 90, "Descend until elbows are at 90 degrees"),
+        'right_elbow': ('min', 90, "Descend until elbows are at 90 degrees"),
+        'left_shoulder': ('max', 160, "Push all the way up to full shoulder extension"),
     },
-    
-    'Rowing': {
-        'left_elbow':  (60, 120, "Pulling angle incorrect"),
-        'right_elbow': (60, 120, "Pulling angle incorrect"),
-        'left_hip':    (100, 140, "Hip hinge angle off"),
-    },
-    
-    # Add more as you go...
+    'JumpingJack': {
+        'left_shoulder': ('max', 150, "Arms not raising high enough overhead"),
+        'left_hip':      ('max', 35, "Legs not spreading wide enough"),
+    }
 }
 
-def analyze_form(exercise_name, angles):
+def analyze_video_form(exercise_name, min_angles, max_angles, tolerance=20):
     """
-    Takes exercise name + measured angles
-    Returns: verdict (Correct/Incorrect) + list of errors
+    Analyzes the form using the extracted min/max angles, 
+    applying a mathematical tolerance to account for 2D camera distortion.
     """
     errors = []
-    
-    # Check if we have rules for this exercise
     if exercise_name not in EXERCISE_RULES:
-        return "Unknown", ["No form rules defined for this exercise yet"]
+        return "Unknown", ["No temporal rules defined for this exercise."]
     
     rules = EXERCISE_RULES[exercise_name]
     
-    for angle_name, (min_val, max_val, error_msg) in rules.items():
-        if angle_name in angles:
-            measured = angles[angle_name]
-            if not (min_val <= measured <= max_val):
-                errors.append(f"⚠️ {error_msg} (measured: {measured}°, ideal: {min_val}-{max_val}°)")
-    
+    for angle_name, (check_type, target, error_msg) in rules.items():
+        if angle_name in max_angles and angle_name in min_angles:
+            if check_type == 'max':
+                # e.g., Target is 150. With 15 deg tolerance, we accept 135 and above.
+                if max_angles[angle_name] < (target - tolerance):
+                    errors.append(f"⚠️ {error_msg} (Best: {max_angles[angle_name]}°, Target: ~{target}°)")
+            elif check_type == 'min':
+                # e.g., Target is 90. With 15 deg tolerance, we accept 105 and below.
+                if min_angles[angle_name] > (target + tolerance):
+                    errors.append(f"⚠️ {error_msg} (Lowest: {min_angles[angle_name]}°, Target: ~{target}°)")
+                    
     verdict = "✅ Correct Form" if not errors else "❌ Incorrect Form"
     return verdict, errors
