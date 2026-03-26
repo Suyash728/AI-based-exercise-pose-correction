@@ -14,8 +14,14 @@ if gpus:
     print("GPU memory growth enabled ✅")
 
 # ── Settings — tuned for 4GB VRAM ───────────────────────
-FRAMES_TRAIN = 'frames/train'
-FRAMES_VAL   = 'frames/val'
+#For V1 Model Traning
+# FRAMES_TRAIN = 'frames/train'
+# FRAMES_VAL   = 'frames/val'
+
+#For V2 Model Training (filtered frames)
+FRAMES_TRAIN = 'frames_filtered/train'
+FRAMES_VAL   = 'frames_filtered/val'
+
 IMG_SIZE     = (224, 224)
 BATCH_SIZE   = 16          # 32 will OOM on 4GB — keep at 16
 EPOCHS       = 15
