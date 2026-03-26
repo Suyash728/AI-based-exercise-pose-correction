@@ -121,4 +121,4 @@ if uploaded_file:
                     for e in errors:
                         st.warning(e)
         
-        os.unlink(tfile.name)  # cleanup temp file
+        os.unlink(tfile.name)  # cleanup temp  file
