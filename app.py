@@ -1,5 +1,6 @@
 import os
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
+os.environ['TF_USE_LEGACY_KERAS'] = '1'
 
 import streamlit as st
 import cv2
