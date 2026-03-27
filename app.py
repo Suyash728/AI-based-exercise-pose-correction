@@ -17,7 +17,6 @@ from form_rules import analyze_video_form
 # ── Load Model ───────────────────────────────────────────
 @st.cache_resource  # load only once
 def load_model():
-    import tf_keras
     model = tf.keras.models.load_model('models/exercise_classifier.h5')
     with open('models/class_labels.json') as f:
         labels = json.load(f)
