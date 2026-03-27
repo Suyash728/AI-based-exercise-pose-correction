@@ -30,6 +30,10 @@ def load_model():
         labels = json.load(f)
     return model, labels
 
+# ADD THIS EXACT LINE SO THE MODEL ACTUALLY LOADS:
+model, labels = load_model()
+# -----------------------------
+
 # ── UI Layout ────────────────────────────────────────────
 st.title("🏋️ AI Exercise Form Analyzer")
 st.write("Upload an exercise video or image to get form feedback.")
