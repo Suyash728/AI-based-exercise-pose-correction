@@ -14,15 +14,21 @@ from pose_extractor import get_landmarks, draw_pose
 from angle_calculator import extract_exercise_angles
 from form_rules import analyze_video_form
 
-# ── Load Model ───────────────────────────────────────────
-@st.cache_resource  # load only once
+# --- EXPERT KERAS 3 BYPASS ---
+class FixDepthwiseConv2D(tf.keras.layers.DepthwiseConv2D):
+    def __init__(self, **kwargs):
+        kwargs.pop('groups', None)  # Intercept and delete the broken argument
+        super().__init__(**kwargs)
+
+@st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model('models/exercise_classifier.h5')
+    model = tf.keras.models.load_model(
+        'models/exercise_classifier.h5', 
+        custom_objects={'DepthwiseConv2D': FixDepthwiseConv2D}
+    )
     with open('models/class_labels.json') as f:
         labels = json.load(f)
     return model, labels
-
-model, labels = load_model()
 
 # ── UI Layout ────────────────────────────────────────────
 st.title("🏋️ AI Exercise Form Analyzer")
