@@ -85,6 +85,6 @@ AI-based-exercise-pose-correction/
 👥 Team
 Team Name: Team Error404
 
-Institution: [YOUR COLLEGE/UNIVERSITY]
+Institution: Ramniranjan Jhunjhunwala College of Arts, Commerce and Science
 
-Team ID: [YOUR TEAM ID]
+Team ID: ANC-009
